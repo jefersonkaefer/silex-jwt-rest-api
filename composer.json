@@ -1,0 +1,16 @@
+{
+    "require": {
+        "silex/silex": "^2.2",
+        "vlucas/phpdotenv": "^2.4",
+        "firebase/php-jwt": "^5.0",
+        "doctrine/dbal": "^2.6",
+        "symfony/validator": "^3.3",
+        "robmorgan/phinx": "^0.8.1",
+        "fzaninotto/faker": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    }
+}
