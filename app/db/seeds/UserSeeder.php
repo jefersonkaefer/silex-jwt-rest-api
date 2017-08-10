@@ -16,7 +16,7 @@ class UserSeeder extends AbstractSeed
     {
         $this->insert('users', [
             'username' => 'admin',
-            'password' => password_hash('admin', PASSWORD_DEFAULT)
+            'password' => password_hash('admin', PASSWORD_BCRYPT)
         ]);
     }
 }
