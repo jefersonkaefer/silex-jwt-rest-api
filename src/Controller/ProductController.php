@@ -2,7 +2,6 @@
 
 namespace Controller;
 
-use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ProductController extends BaseController

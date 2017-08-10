@@ -11,7 +11,7 @@ class AuthenticationServiceProvider implements ControllerProviderInterface
     {
         $authentication = $app['controllers_factory'];
 
-        $authentication->get('/', 'AuthenticationController:index');
+        $authentication->post('/signin', 'AuthenticationController:signin');
 
         return $authentication;
     }
