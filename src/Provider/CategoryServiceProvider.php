@@ -34,7 +34,7 @@ class CategoryServiceProvider implements ControllerProviderInterface
             }
         });
 
-        $category->get('/', 'CategoryController:index');
+        $category->get('/', 'CategoryController:getCategories')->bind('getCategories');
 
         return $category;
     }

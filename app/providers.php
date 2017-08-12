@@ -4,6 +4,8 @@ $app->register(new \Silex\Provider\ServiceControllerServiceProvider());
 
 $app->register(new \Provider\ControllersServiceProvider());
 
+$app->register(new \Silex\Provider\RoutingServiceProvider());
+
 $app->register(new \Silex\Provider\DoctrineServiceProvider(), [
     'db.options' => [
         'driver'    => getenv('DATABASE_DRIVER'),
