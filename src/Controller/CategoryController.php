@@ -2,6 +2,7 @@
 
 namespace Controller;
 
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -372,5 +373,90 @@ class CategoryController extends BaseController
         $response['data'] = $data;
 
         return new JsonResponse($response);
+    }
+
+    public function getCategory(Request $request, $id)
+    {
+        $availableFields = [
+            'id'            => 'c.id',
+            'user_id'       => 'c.user_id',
+            'name'          => 'c.name',
+            'created_at'    => 'c.created_at'
+        ];
+
+        $availableOperations = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte'];
+
+//        $qb = (new Connection())->createQueryBuilder();
+        $qb = $this->app['db']->createQueryBuilder();
+
+        if ($fields = $request->query->get('fields')) {
+            foreach ($fields as $field) {
+                if (empty($field)) {
+                    return new JsonResponse([
+                        'message' => "Fields[] can not be empty."
+                    ], 400);
+                };
+
+                if (!in_array($field, array_keys($availableFields))) {
+                    return new JsonResponse([
+                        'message' => "Field {$field} does not exists."
+                    ], 400);
+                }
+
+                if ($request->query->has('includeUser') && $field === 'user_id') {
+                    return new JsonResponse([
+                        'message' => "You can not select user_id with user include."
+                    ], 400);
+                }
+
+                $qb->addSelect($availableFields[$field]);
+            }
+        } else {
+            if ($request->query->has('includeUser')) {
+                $qb->select('c.id, c.name, c.created_at');
+            } else {
+                $qb->select('c.*');
+            }
+        }
+
+        $qb->from('categories', 'c');
+
+        if ($request->query->has('includeUser')) {
+            $qb->addSelect('u.id AS user_id');
+            $qb->addSelect('u.username');
+            $qb->leftJoin('c', 'users', 'u', 'u.id = c.user_id');
+        }
+
+        $qb->where('c.id = :cid');
+
+        $qb->setParameters([
+            ':cid' => $id
+        ]);
+
+        $row = $qb->execute()->fetchAll()[0];
+
+        if (!$row) {
+            return new JsonResponse([
+                'message' => 'Category not found.'
+            ], 404);
+        }
+
+        $data = [
+            'id' => $row['id']
+        ];
+
+        if (!$request->query->has('includeUser')) {
+            $data['user_id'] = $row['user_id'];
+        } else {
+            $data['user'] = [
+                'id'        => $row['user_id'],
+                'username'  => $row['username']
+            ];
+        }
+
+        $data['name'] = $row['name'];
+        $data['created_at'] = $row['created_at'];
+
+        return new JsonResponse($data);
     }
 }
