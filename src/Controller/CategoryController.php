@@ -376,7 +376,7 @@ class CategoryController extends BaseController
         return new JsonResponse($response);
     }
 
-    public function getCategory(Request $request, $id)
+    public function getCategory(Request $request, $categoryId)
     {
         $availableFields = [
             'id'            => 'c.id',
@@ -420,15 +420,14 @@ class CategoryController extends BaseController
         $qb->from('categories', 'c');
 
         if ($request->query->has('includeUser')) {
-            $qb->addSelect('u.id AS user_id');
-            $qb->addSelect('u.username');
+            $qb->addSelect('u.id AS user_id, u.username');
             $qb->leftJoin('c', 'users', 'u', 'u.id = c.user_id');
         }
 
         $qb->where('c.id = :cid');
 
         $qb->setParameters([
-            ':cid' => $id
+            ':cid' => $categoryId
         ]);
 
         $row = $qb->execute()->fetchAll()[0];
@@ -481,10 +480,16 @@ class CategoryController extends BaseController
             ], 400);
         }
 
-        $this->app['db']->insert('categories', [
+        $categoryInserted = $this->app['db']->insert('categories', [
             'user_id'   => $this->app['user']->user_id,
             'name'      => $categoryName
         ]);
+
+        if (!$categoryInserted) {
+            return new JsonResponse([
+                'message' => 'Category insert fail.'
+            ], 400);
+        }
 
         return new JsonResponse([
             'message' => 'Category created.'
@@ -514,13 +519,13 @@ class CategoryController extends BaseController
             ], 400);
         }
 
-        $updateQuery = $this->app['db']->update('categories', [
+        $categoryUpdated = $this->app['db']->update('categories', [
             'name' => $categoryName
         ], [
             'id' => $categoryId
         ]);
 
-        if ($updateQuery == 0) {
+        if (!$categoryUpdated) {
             return new JsonResponse([
                 'message' => 'Category update fail.'
             ], 400);
@@ -531,15 +536,15 @@ class CategoryController extends BaseController
         ]);
     }
 
-    public function deleteCategory($id)
+    public function deleteCategory($categoryId)
     {
-        $deleteQuery = $this->app['db']->delete('categories', [
-            'id' => $id
+        $categoryDeleted = $this->app['db']->delete('categories', [
+            'id' => $categoryId
         ]);
 
-        if ($deleteQuery == 0) {
+        if (!$categoryDeleted) {
             return new JsonResponse([
-                'message' => 'Category not found.'
+                'message' => 'Invalid request parameters.'
             ], 400);
         }
 

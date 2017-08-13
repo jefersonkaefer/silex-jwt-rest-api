@@ -40,9 +40,9 @@ class CategoryServiceProvider implements ControllerProviderInterface
         ;
 
         $category
-            ->get('/{id}', 'CategoryController:getCategory')
+            ->get('/{categoryId}', 'CategoryController:getCategory')
             ->bind('getCategory')
-            ->assert('id', '\d+')
+            ->assert('categoryId', '\d+')
         ;
 
         $category
@@ -57,9 +57,9 @@ class CategoryServiceProvider implements ControllerProviderInterface
         ;
 
         $category
-            ->delete('/{id}', 'CategoryController:deleteCategory')
+            ->delete('/{categoryId}', 'CategoryController:deleteCategory')
             ->bind('deleteCategory')
-            ->assert('id', '\d+')
+            ->assert('categoryId', '\d+')
         ;
 
         return $category;
