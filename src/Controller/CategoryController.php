@@ -455,4 +455,21 @@ class CategoryController extends BaseController
 
         return new JsonResponse($data);
     }
+
+    public function deleteCategory($id)
+    {
+        $deleteQuery = $this->app['db']->delete('categories', [
+            'id' => $id
+        ]);
+
+        if ($deleteQuery == 0) {
+            return new JsonResponse([
+                'message' => 'Category not found.'
+            ], 400);
+        }
+
+        return new JsonResponse([
+            'message' => 'Category deleted.'
+        ], 200);
+    }
 }
