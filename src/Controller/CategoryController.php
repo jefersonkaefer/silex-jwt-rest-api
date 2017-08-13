@@ -4,7 +4,9 @@ namespace Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Validator\UniqueCategoryName;
 
 class CategoryController extends BaseController
 {
@@ -454,6 +456,39 @@ class CategoryController extends BaseController
         $data['created_at'] = $row['created_at'];
 
         return new JsonResponse($data);
+    }
+
+    public function postCategory(Request $request)
+    {
+        $categoryName = $request->request->get('name');
+
+        $errors = $this->app['validator']->validate([
+            'categoryName' => $categoryName
+        ], new Assert\Collection([
+            'categoryName' => [
+                new Assert\NotBlank(),
+                new Assert\Length([
+                    'min' => 4,
+                    'max' => 64
+                ]),
+                new UniqueCategoryName()
+            ]
+        ]));
+
+        if (count($errors) > 0) {
+            return new JsonResponse([
+                'message' => $errors[0]->getMessage()
+            ], 400);
+        }
+
+        $this->app['db']->insert('categories', [
+            'user_id'   => $this->app['user']->user_id,
+            'name'      => $categoryName
+        ]);
+
+        return new JsonResponse([
+            'message' => 'Category created.'
+        ]);
     }
 
     public function deleteCategory($id)

@@ -46,11 +46,15 @@ class CategoryServiceProvider implements ControllerProviderInterface
         ;
 
         $category
+            ->post('/', 'CategoryController:postCategory')
+            ->bind('postCategory')
+        ;
+
+        $category
             ->delete('/{id}', 'CategoryController:deleteCategory')
             ->bind('deleteCategory')
             ->assert('id', '\d+')
         ;
-
 
         return $category;
     }
