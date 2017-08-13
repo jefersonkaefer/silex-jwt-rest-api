@@ -2,7 +2,6 @@
 
 namespace Controller;
 
-use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -384,9 +383,6 @@ class CategoryController extends BaseController
             'created_at'    => 'c.created_at'
         ];
 
-        $availableOperations = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte'];
-
-//        $qb = (new Connection())->createQueryBuilder();
         $qb = $this->app['db']->createQueryBuilder();
 
         if ($fields = $request->query->get('fields')) {
