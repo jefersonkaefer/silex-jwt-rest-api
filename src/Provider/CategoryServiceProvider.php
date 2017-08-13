@@ -51,6 +51,12 @@ class CategoryServiceProvider implements ControllerProviderInterface
         ;
 
         $category
+            ->patch('/{categoryId}', 'CategoryController:putCategory')
+            ->bind('putCategory')
+            ->assert('categoryId', '\d+')
+        ;
+
+        $category
             ->delete('/{id}', 'CategoryController:deleteCategory')
             ->bind('deleteCategory')
             ->assert('id', '\d+')

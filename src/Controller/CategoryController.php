@@ -491,6 +491,46 @@ class CategoryController extends BaseController
         ]);
     }
 
+    public function putCategory(Request $request, $categoryId)
+    {
+        $categoryName = $request->request->get('name');
+
+        $errors = $this->app['validator']->validate([
+            'categoryName' => $categoryName
+        ], new Assert\Collection([
+            'categoryName' => [
+                new Assert\NotBlank(),
+                new Assert\Length([
+                    'min' => 4,
+                    'max' => 64
+                ]),
+                new UniqueCategoryName()
+            ]
+        ]));
+
+        if (count($errors) > 0) {
+            return new JsonResponse([
+                'message' => $errors[0]->getMessage()
+            ], 400);
+        }
+
+        $updateQuery = $this->app['db']->update('categories', [
+            'name' => $categoryName
+        ], [
+            'id' => $categoryId
+        ]);
+
+        if ($updateQuery == 0) {
+            return new JsonResponse([
+                'message' => 'Category update fail.'
+            ], 400);
+        }
+
+        return new JsonResponse([
+            'message' => 'Category updated.'
+        ]);
+    }
+
     public function deleteCategory($id)
     {
         $deleteQuery = $this->app['db']->delete('categories', [
