@@ -34,7 +34,33 @@ class CategoryServiceProvider implements ControllerProviderInterface
             }
         });
 
-        $category->get('/', 'CategoryController:index');
+        $category
+            ->get('/', 'CategoryController:getCategories')
+            ->bind('getCategories')
+        ;
+
+        $category
+            ->get('/{categoryId}', 'CategoryController:getCategory')
+            ->bind('getCategory')
+            ->assert('categoryId', '\d+')
+        ;
+
+        $category
+            ->post('/', 'CategoryController:postCategory')
+            ->bind('postCategory')
+        ;
+
+        $category
+            ->patch('/{categoryId}', 'CategoryController:putCategory')
+            ->bind('putCategory')
+            ->assert('categoryId', '\d+')
+        ;
+
+        $category
+            ->delete('/{categoryId}', 'CategoryController:deleteCategory')
+            ->bind('deleteCategory')
+            ->assert('categoryId', '\d+')
+        ;
 
         return $category;
     }

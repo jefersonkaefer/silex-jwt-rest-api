@@ -4,6 +4,8 @@ $app->register(new \Silex\Provider\ServiceControllerServiceProvider());
 
 $app->register(new \Provider\ControllersServiceProvider());
 
+$app->register(new \Silex\Provider\RoutingServiceProvider());
+
 $app->register(new \Silex\Provider\DoctrineServiceProvider(), [
     'db.options' => [
         'driver'    => getenv('DATABASE_DRIVER'),
@@ -19,6 +21,7 @@ $app->register(new \Provider\ConstraintsServiceProvider());
 
 $app->register(new \Silex\Provider\ValidatorServiceProvider(), [
     'validator.validator_service_ids' => [
-        'validator.unique_username' => 'validator.unique_username'
+        'validator.unique_username'         => 'validator.unique_username',
+        'validator.unique_category_name'    => 'validator.unique_category_name'
     ]
 ]);
