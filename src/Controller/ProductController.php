@@ -166,4 +166,21 @@ class ProductController extends BaseController
             'message' => 'Product updated.'
         ]);
     }
+
+    public function deleteProduct($productId)
+    {
+        $productDeleted = $this->app['db']->delete('products', [
+            'id' => $productId
+        ]);
+
+        if (!$productDeleted) {
+            return new JsonResponse([
+                'message' => 'Product delete fail.'
+            ], 400);
+        }
+
+        return new JsonResponse([
+            'message' => 'Product deleted.'
+        ]);
+    }
 }

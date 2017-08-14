@@ -44,6 +44,12 @@ class ProductServiceProvider implements ControllerProviderInterface
             ->bind('putProduct')
         ;
 
+        $product
+            ->delete('/{productId}', 'ProductController:deleteProduct')
+            ->bind('deleteProduct')
+        ;
+
+
         return $product;
     }
 }
