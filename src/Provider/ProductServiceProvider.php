@@ -41,11 +41,13 @@ class ProductServiceProvider implements ControllerProviderInterface
 
         $product
             ->put('/{productId}', 'ProductController:putProduct')
+            ->assert('productId', '\d+')
             ->bind('putProduct')
         ;
 
         $product
             ->delete('/{productId}', 'ProductController:deleteProduct')
+            ->assert('productId', '\d+')
             ->bind('deleteProduct')
         ;
 
