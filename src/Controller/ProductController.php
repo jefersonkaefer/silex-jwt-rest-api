@@ -25,13 +25,15 @@ class ProductController extends BaseController
 
         $availableOperations = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte'];
 
+        $selectedFields = [];
+
         $qb = $this->app['db']->createQueryBuilder();
 
         if ($fields = $request->query->get('fields')) {
             foreach ($fields as $field) {
                 if (empty($field)) {
                     return new JsonResponse([
-                        'message' => "Fields[] can not be empty."
+                        'message' => "Fields[] parameter can not be empty."
                     ], 400);
                 };
 
@@ -53,25 +55,27 @@ class ProductController extends BaseController
                     ], 400);
                 }
 
-                $qb->addSelect($availableFields[$field]);
+                $selectedFields[] = $availableFields[$field];
             }
         } else {
             if ($request->query->has('includeUser') || $request->query->has('includeCategory')) {
-                if ($request->query->has('includeUser') && !$request->query->has('includeCategory')) {
-                    $qb->select('p.id, p.category_id, p.name, p.description, p.price, p.created_at');
+                if ($request->query->has('includeCategory') && !$request->query->has('includeUser')) {
+                    $selectedFields = ['p.id', 'p.user_id', 'p.name', 'p.description', 'p.price', 'p.created_at'];
                 }
 
-                if (!$request->query->has('includeUser') && $request->query->has('includeCategory')) {
-                    $qb->select('p.id, p.user_id, p.name, p.description, p.price, p.created_at');
+                if (!$request->query->has('includeCategory') && $request->query->has('includeUser')) {
+                    $selectedFields = ['p.id', 'p.category_id', 'p.name', 'p.description', 'p.price', 'p.created_at'];
                 }
 
                 if ($request->query->has('includeUser') && $request->query->has('includeCategory')) {
-                    $qb->select('p.id, p.name, p.description, p.price, p.created_at');
+                    $selectedFields = ['p.id', 'p.name', 'p.description', 'p.price', 'p.created_at'];
                 }
             } else {
-                $qb->select('p.*');
+                $selectedFields = ['p.*'];
             }
         }
+
+        $qb->select(implode(', ', $selectedFields));
 
         $qb->from('products', 'p');
 
@@ -376,37 +380,52 @@ class ProductController extends BaseController
         $rows = $this->app['db']->fetchAll($qb->getSQL());
 
         foreach ($rows as $key => $row) {
-            $data[$key] = [
-                'id' => $row['id']
-            ];
+            if (in_array('p.id', $selectedFields) || $selectedFields[0] == 'p.*') {
+                $products[$key]['id'] = $row['id'];
+            }
 
             if (!$request->query->has('includeCategory')) {
-                $data[$key]['category_id'] = $row['category_id'];
+                if (in_array('p.category_id', $selectedFields) || $selectedFields[0] == 'p.*') {
+                    $products[$key]['category_id'] = $row['category_id'];
+                }
             } else {
-                $data[$key]['category'] = [
+                $products[$key]['category'] = [
                     'id'    => $row['category_id'],
                     'name'  => $row['category_name']
                 ];
             }
 
             if (!$request->query->has('includeUser')) {
-                $data[$key]['user_id'] = $row['user_id'];
+                if (in_array('p.user_id', $selectedFields) || $selectedFields[0] == 'p.*') {
+                    $products[$key]['user_id'] = $row['user_id'];
+                }
             } else {
-                $data[$key]['user'] = [
+                $products[$key]['user'] = [
                     'id'        => $row['user_id'],
                     'username'  => $row['user_username']
                 ];
             }
 
-            $data[$key]['name'] = $row['name'];
-            $data[$key]['description'] = $row['description'];
-            $data[$key]['price'] = $row['price'];
-            $data[$key]['created_at'] = $row['created_at'];
+            if (in_array('p.name', $selectedFields) || $selectedFields[0] == 'p.*') {
+                $products[$key]['name'] = $row['name'];
+            }
+
+            if (in_array('p.description', $selectedFields) || $selectedFields[0] == 'p.*') {
+                $products[$key]['description'] = $row['description'];
+            }
+
+            if (in_array('p.price', $selectedFields) || $selectedFields[0] == 'p.*') {
+                $products[$key]['price'] = $row['price'];
+            }
+
+            if (in_array('p.created_at', $selectedFields) || $selectedFields[0] == 'p.*') {
+                $products[$key]['created_at'] = $row['created_at'];
+            }
         }
 
         if ($pagination) $response['pagination'] = $pagination;
 
-        $response['data'] = $data;
+        $response['products'] = $products;
 
         return new JsonResponse($response);
     }
@@ -467,7 +486,6 @@ class ProductController extends BaseController
 
                 if ($request->query->has('includeUser') && $request->query->has('includeCategory')) {
                     $selectedFields = ['p.id', 'p.name', 'p.description', 'p.price', 'p.created_at'];
-
                 }
             } else {
                 $selectedFields[] = 'p.*';
