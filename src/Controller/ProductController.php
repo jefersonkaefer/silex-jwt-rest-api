@@ -315,6 +315,8 @@ class ProductController extends BaseController
             $qb->orderBy('p.id', 'ASC');
         }
 
+        $pagination = null;
+
         if ($page = $request->query->get('page')) {
             if ($itemsPerPage = $request->query->get('itemsPerPage')) {
                 if (!($itemsPerPage > 0 && $itemsPerPage <= 20)) {
@@ -327,7 +329,7 @@ class ProductController extends BaseController
             $categoriesCountQuery = clone $qb;
             $categoriesCountQuery->select('COUNT(*)');
 
-            $categoriesCount = $this->app['db']->fetchColumn($categoriesCountQuery->getSQL());
+            $categoriesCount = $this->app['db']->execute()->fetchColumn($categoriesCountQuery->getSQL());
 
             if ($categoriesCount > $itemsPerPage) {
                 $availablePages = ceil($categoriesCount / $itemsPerPage);

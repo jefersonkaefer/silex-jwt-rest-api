@@ -46,6 +46,12 @@ class CategoryServiceProvider implements ControllerProviderInterface
         ;
 
         $category
+            ->get('/{categoryId}/products', 'CategoryController:getProductsByCategory')
+            ->bind('getProductsByCategory')
+            ->assert('categoryId', '\d+')
+        ;
+
+        $category
             ->post('/', 'CategoryController:postCategory')
             ->bind('postCategory')
         ;
