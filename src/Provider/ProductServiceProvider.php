@@ -34,7 +34,33 @@ class ProductServiceProvider implements ControllerProviderInterface
             }
         });
 
-        $product->get('/', 'ProductController:index');
+        $product
+            ->get('/', 'ProductController:getProducts')
+            ->bind('getProducts')
+        ;
+
+        $product
+            ->get('/{productId}', 'ProductController:getProduct')
+            ->bind('getProduct')
+        ;
+
+        $product
+            ->post('/', 'ProductController:postProduct')
+            ->bind('postProduct')
+        ;
+
+        $product
+            ->put('/{productId}', 'ProductController:putProduct')
+            ->assert('productId', '\d+')
+            ->bind('putProduct')
+        ;
+
+        $product
+            ->delete('/{productId}', 'ProductController:deleteProduct')
+            ->assert('productId', '\d+')
+            ->bind('deleteProduct')
+        ;
+
 
         return $product;
     }

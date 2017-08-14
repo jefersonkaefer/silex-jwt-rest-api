@@ -22,6 +22,7 @@ $app->register(new \Provider\ConstraintsServiceProvider());
 $app->register(new \Silex\Provider\ValidatorServiceProvider(), [
     'validator.validator_service_ids' => [
         'validator.unique_username'         => 'validator.unique_username',
-        'validator.unique_category_name'    => 'validator.unique_category_name'
+        'validator.unique_category_name'    => 'validator.unique_category_name',
+        'validator.category_id_exists'      => 'validator.category_id_exists'
     ]
 ]);
