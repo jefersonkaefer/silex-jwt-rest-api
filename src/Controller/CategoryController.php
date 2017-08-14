@@ -2,11 +2,12 @@
 
 namespace Controller;
 
+use Service\Paginator;
+use Validator\UniqueCategoryName;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Validator\UniqueCategoryName;
 
 class CategoryController extends BaseController
 {
@@ -291,65 +292,17 @@ class CategoryController extends BaseController
         }
 
         if ($page = $request->query->get('page')) {
-            if ($itemsPerPage = $request->query->get('itemsPerPage')) {
-                if (!($itemsPerPage > 0 && $itemsPerPage <= 20)) {
-                    $itemsPerPage = getenv('ITEMS_PER_PAGE');
-                }
+            if ($request->query->get('itemsPerPage')) {
+                $itemsPerPage = $request->query->get('itemsPerPage');
             } else {
                 $itemsPerPage = getenv('ITEMS_PER_PAGE');
             }
 
-            $categoriesCountQuery = clone $qb;
-            $categoriesCountQuery->select('COUNT(*)');
+            $paginator = new Paginator($qb, $page, $itemsPerPage);
 
-            $categoriesCount = $this->app['db']->fetchColumn($categoriesCountQuery->getSQL());
-
-            if ($categoriesCount > $itemsPerPage) {
-                $availablePages = ceil($categoriesCount / $itemsPerPage);
-
-                $currentPage = ($page <= $availablePages && $page > 0) ? $page : 1;
-
-                $start = ($currentPage > 0) ? $currentPage * $itemsPerPage - $itemsPerPage : 0;
-
-                $qb->setFirstResult($start);
-                $qb->setMaxResults($itemsPerPage);
-
-                $pagination = [
-                    'items'             => $categoriesCount,
-                    'availablePages'    => $availablePages,
-                    'currentPage'       => $currentPage
-                ];
-
-                $pagination['links']['self'] = $this->app['url_generator']->generate('getCategories', [
-                    'page'          => $currentPage,
-                    'itemsPerPage'  => $itemsPerPage
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
-
-                if ($currentPage != 1) {
-                    $pagination['links']['first'] = $this->app['url_generator']->generate('getCategories', [], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if (($currentPage - 1) > 0) {
-                    $pagination['links']['prev'] = $this->app['url_generator']->generate('getCategories', [
-                        'page'          => $currentPage - 1,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if (($currentPage + 1) <= $availablePages) {
-                    $pagination['links']['next'] = $this->app['url_generator']->generate('getCategories', [
-                        'page'          => $currentPage + 1,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if ($currentPage != $availablePages) {
-                    $pagination['links']['last'] = $this->app['url_generator']->generate('getCategories', [
-                        'page'          => $availablePages,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-            }
+            $pagination = $paginator->paginate();
+        } else {
+            $pagination = null;
         }
 
         $rows = $this->app['db']->fetchAll($qb->getSQL());
@@ -723,68 +676,18 @@ class CategoryController extends BaseController
             $qb->orderBy('p.id', 'ASC');
         }
 
-        $pagination = null;
-
         if ($page = $request->query->get('page')) {
-            if ($itemsPerPage = $request->query->get('itemsPerPage')) {
-                if (!($itemsPerPage > 0 && $itemsPerPage <= 20)) {
-                    $itemsPerPage = getenv('ITEMS_PER_PAGE');
-                }
+            if ($request->query->get('itemsPerPage')) {
+                $itemsPerPage = $request->query->get('itemsPerPage');
             } else {
                 $itemsPerPage = getenv('ITEMS_PER_PAGE');
             }
 
-            $categoriesCountQuery = clone $qb;
-            $categoriesCountQuery->select('COUNT(*)');
+            $paginator = new Paginator($qb, $page, $itemsPerPage);
 
-            $categoriesCount = $categoriesCountQuery->execute()->fetchColumn();
-
-            if ($categoriesCount > $itemsPerPage) {
-                $availablePages = ceil($categoriesCount / $itemsPerPage);
-
-                $currentPage = ($page <= $availablePages && $page > 0) ? $page : 1;
-
-                $start = ($currentPage > 0) ? $currentPage * $itemsPerPage - $itemsPerPage : 0;
-
-                $qb->setFirstResult($start);
-                $qb->setMaxResults($itemsPerPage);
-
-                $pagination = [
-                    'items'             => $categoriesCount,
-                    'availablePages'    => $availablePages,
-                    'currentPage'       => $currentPage
-                ];
-
-                $pagination['links']['self'] = $this->app['url_generator']->generate('getProducts', [
-                    'page'          => $currentPage,
-                    'itemsPerPage'  => $itemsPerPage
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
-
-                if ($currentPage != 1) {
-                    $pagination['links']['first'] = $this->app['url_generator']->generate('getProducts', [], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if (($currentPage - 1) > 0) {
-                    $pagination['links']['prev'] = $this->app['url_generator']->generate('getProducts', [
-                        'page'          => $currentPage - 1,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if (($currentPage + 1) <= $availablePages) {
-                    $pagination['links']['next'] = $this->app['url_generator']->generate('getProducts', [
-                        'page'          => $currentPage + 1,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-
-                if ($currentPage != $availablePages) {
-                    $pagination['links']['last'] = $this->app['url_generator']->generate('getProducts', [
-                        'page'          => $availablePages,
-                        'itemsPerPage'  => $itemsPerPage
-                    ], UrlGeneratorInterface::ABSOLUTE_URL);
-                }
-            }
+            $pagination = $paginator->paginate();
+        } else {
+            $pagination = null;
         }
 
         $rows = $qb->execute()->fetchAll();
