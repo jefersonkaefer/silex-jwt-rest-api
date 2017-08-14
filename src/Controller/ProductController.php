@@ -431,7 +431,7 @@ class ProductController extends BaseController
             foreach ($fields as $field) {
                 if (empty($field)) {
                     return new JsonResponse([
-                        'message' => "Field[] parameter can not be empty."
+                        'message' => "Fields[] parameter can not be empty."
                     ], 400);
                 }
 
