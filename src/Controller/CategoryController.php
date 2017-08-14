@@ -21,6 +21,8 @@ class CategoryController extends BaseController
 
         $availableOperations = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte'];
 
+        $selectedFields = [];
+
         $qb = $this->app['db']->createQueryBuilder();
 
         if ($fields = $request->query->get('fields')) {
@@ -43,21 +45,22 @@ class CategoryController extends BaseController
                     ], 400);
                 }
 
-                $qb->addSelect($availableFields[$field]);
+                $selectedFields[] = $availableFields[$field];
             }
         } else {
             if ($request->query->has('includeUser')) {
-                $qb->select('c.id, c.name, c.created_at');
+                $selectedFields = ['c.id', 'c.name', 'c.created_at'];
             } else {
-                $qb->select('c.*');
+                $selectedFields = ['c.*'];
             }
         }
+
+        $qb->select(implode(', ', $selectedFields));
 
         $qb->from('categories', 'c');
 
         if ($request->query->has('includeUser')) {
-            $qb->addSelect('u.id AS user_id');
-            $qb->addSelect('u.username');
+            $qb->addSelect('u.id AS user_id, u.username AS user_username');
             $qb->leftJoin('c', 'users', 'u', 'u.id = c.user_id');
         }
 
@@ -352,26 +355,33 @@ class CategoryController extends BaseController
         $rows = $this->app['db']->fetchAll($qb->getSQL());
 
         foreach ($rows as $key => $row) {
-            $data[$key] = [
-                'id' => $row['id']
-            ];
+            if (in_array('c.id', $selectedFields) || $selectedFields[0] == 'c.*') {
+                $categories[$key]['id'] = $row['id'];
+            }
 
             if (!$request->query->has('includeUser')) {
-                $data[$key]['user_id'] = $row['user_id'];
+                if (in_array('c.user_id', $selectedFields) || $selectedFields[0] == 'c.*') {
+                    $categories[$key]['user_id'] = $row['user_id'];
+                }
             } else {
-                $data[$key]['user'] = [
+                $categories[$key]['user'] = [
                     'id'        => $row['user_id'],
-                    'username'  => $row['username']
+                    'username'  => $row['user_username']
                 ];
             }
 
-            $data[$key]['name'] = $row['name'];
-            $data[$key]['created_at'] = $row['created_at'];
+            if (in_array('c.name', $selectedFields) || $selectedFields[0] == 'c.*') {
+                $categories[$key]['name'] = $row['name'];
+            }
+
+            if (in_array('c.created_at', $selectedFields) || $selectedFields[0] == 'c.*') {
+                $categories[$key]['created_at'] = $row['created_at'];
+            }
         }
 
         if ($pagination) $response['pagination'] = $pagination;
 
-        $response['data'] = $data;
+        $response['data'] = $categories;
 
         return new JsonResponse($response);
     }
@@ -384,6 +394,8 @@ class CategoryController extends BaseController
             'name'          => 'c.name',
             'created_at'    => 'c.created_at'
         ];
+
+        $selectedFields = [];
 
         $qb = $this->app['db']->createQueryBuilder();
 
@@ -407,20 +419,22 @@ class CategoryController extends BaseController
                     ], 400);
                 }
 
-                $qb->addSelect($availableFields[$field]);
+                $selectedFields[] = $availableFields[$field];
             }
         } else {
             if ($request->query->has('includeUser')) {
-                $qb->select('c.id, c.name, c.created_at');
+                $selectedFields = ['c.id', 'c.name', 'c.created_at'];
             } else {
-                $qb->select('c.*');
+                $selectedFields = ['c.*'];
             }
         }
+
+        $qb->select(implode(', ', $selectedFields));
 
         $qb->from('categories', 'c');
 
         if ($request->query->has('includeUser')) {
-            $qb->addSelect('u.id AS user_id, u.username');
+            $qb->addSelect('u.id AS user_id, u.username AS user_username');
             $qb->leftJoin('c', 'users', 'u', 'u.id = c.user_id');
         }
 
@@ -438,23 +452,32 @@ class CategoryController extends BaseController
             ], 404);
         }
 
-        $data = [
-            'id' => $row['id']
-        ];
+        if (in_array('c.id', $selectedFields) || $selectedFields[0] == 'c.*') {
+            $category['id'] = $row['id'];
+        }
 
         if (!$request->query->has('includeUser')) {
-            $data['user_id'] = $row['user_id'];
+            if (in_array('c.user_id', $selectedFields) || $selectedFields[0] == 'c.*') {
+                $category['user_id'] = $row['user_id'];
+            }
         } else {
-            $data['user'] = [
+            $category['user'] = [
                 'id'        => $row['user_id'],
-                'username'  => $row['username']
+                'username'  => $row['user_username']
             ];
         }
 
-        $data['name'] = $row['name'];
-        $data['created_at'] = $row['created_at'];
+        if (in_array('c.name', $selectedFields) || $selectedFields[0] == 'c.*') {
+            $category['name'] = $row['name'];
+        }
 
-        return new JsonResponse($data);
+        if (in_array('c.created_at', $selectedFields) || $selectedFields[0] == 'c.*') {
+            $category['created_at'] = $row['created_at'];
+        }
+
+        return new JsonResponse([
+            'category' => $category
+        ]);
     }
 
     public function postCategory(Request $request)
