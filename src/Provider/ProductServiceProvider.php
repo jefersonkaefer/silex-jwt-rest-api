@@ -40,6 +40,11 @@ class ProductServiceProvider implements ControllerProviderInterface
         ;
 
         $product
+            ->get('/{productId}', 'ProductController:getProduct')
+            ->bind('getProduct')
+        ;
+
+        $product
             ->post('/', 'ProductController:postProduct')
             ->bind('postProduct')
         ;

@@ -410,6 +410,126 @@ class ProductController extends BaseController
         return new JsonResponse($response);
     }
 
+    public function getProduct(Request $request, $productId)
+    {
+        $availableFields = [
+            'id'            => 'p.id',
+            'category_id'   => 'p.category_id',
+            'user_id'       => 'p.user_id',
+            'name'          => 'p.name',
+            'description'   => 'p.description',
+            'price'         => 'p.price',
+            'created_at'    => 'p.created_at'
+        ];
+
+        $availableOperations = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte'];
+
+        $qb = $this->app['db']->createQueryBuilder();
+
+        if ($fields = $request->query->get('fields')) {
+            foreach ($fields as $field) {
+                if (empty($field)) {
+                    return new JsonResponse([
+                        'message' => "Fields[] can not be empty."
+                    ], 400);
+                };
+
+                if (!in_array($field, array_keys($availableFields))) {
+                    return new JsonResponse([
+                        'message' => "Field {$field} does not exists."
+                    ], 400);
+                }
+
+                if ($request->query->has('includeUser') && $field === 'user_id') {
+                    return new JsonResponse([
+                        'message' => "You can not select user_id with user include."
+                    ], 400);
+                }
+
+                if ($request->query->has('includeCategory') && $field === 'category_id') {
+                    return new JsonResponse([
+                        'message' => "You can not select category_id with category include."
+                    ], 400);
+                }
+
+                $qb->addSelect($availableFields[$field]);
+            }
+        } else {
+            if ($request->query->has('includeUser') || $request->query->has('includeCategory')) {
+                if ($request->query->has('includeUser') && !$request->query->has('includeCategory')) {
+                    $qb->select('p.id, p.category_id, p.name, p.description, p.price, p.created_at');
+                }
+
+                if (!$request->query->has('includeUser') && $request->query->has('includeCategory')) {
+                    $qb->select('p.id, p.user_id, p.name, p.description, p.price, p.created_at');
+                }
+
+                if ($request->query->has('includeUser') && $request->query->has('includeCategory')) {
+                    $qb->select('p.id, p.name, p.description, p.price, p.created_at');
+                }
+            } else {
+                $qb->select('p.*');
+            }
+        }
+
+        $qb->from('products', 'p');
+
+        if ($request->query->has('includeCategory')) {
+            $qb->addSelect('c.id AS category_id, c.name AS category_name');
+            $qb->leftJoin('p', 'categories', 'c', 'c.id = p.category_id');
+        }
+
+        if ($request->query->has('includeUser')) {
+            $qb->addSelect('u.id AS user_id, u.username AS user_username');
+            $qb->leftJoin('p', 'users', 'u', 'u.id = p.user_id');
+        }
+
+        $qb->where('p.id = :pid');
+
+        $qb->setParameters([
+            ':pid' => $productId
+        ]);
+
+        $row = $qb->execute()->fetchAll()[0];
+
+        if (!$row) {
+            return new JsonResponse([
+                'message' => 'Product not found.'
+            ], 404);
+        }
+
+        $data = [
+            'id' => $row['id']
+        ];
+
+        if (!$request->query->has('includeCategory')) {
+            $data['category_id'] = $row['category_id'];
+        } else {
+            $data['category'] = [
+                'id'    => $row['category_id'],
+                'name'  => $row['category_name']
+            ];
+        }
+
+        if (!$request->query->has('includeUser')) {
+            $data['user_id'] = $row['user_id'];
+        } else {
+            $data['user'] = [
+                'id'        => $row['user_id'],
+                'username'  => $row['user_username']
+            ];
+        }
+
+        $data['name'] = $row['name'];
+        $data['description'] = $row['description'];
+        $data['price'] = $row['price'];
+        $data['created_at'] = $row['created_at'];
+
+        $response['data'] = $data;
+
+        return new JsonResponse($response);
+    }
+
     public function postProduct(Request $request)
     {
         $productCategoryId  = ($request->request->has('category_id')) ? $request->request->get('category_id') : null;
