@@ -21,17 +21,15 @@ class Paginator
         $this->setCurrentPage($currentPage);
     }
 
-    public function setQueryBuilder(QueryBuilder $qb)
+    private function setQueryBuilder(QueryBuilder $qb)
     {
         $this->qb = $qb;
     }
 
-    public function setCurrentPage($currentPage)
+    private function setCurrentPage($currentPage)
     {
-        $currentPage = intval($currentPage);
-
-        if ($currentPage < 1) {
-            throw new \InvalidArgumentException('Current page should be a number greater than 0.');
+        if (!preg_match('/^[1-9]+[0-9]*$/', $currentPage)) {
+            throw new \InvalidArgumentException('Current page should be a number, greater than 0.');
         }
 
         if ($currentPage > $this->availablePages) {
@@ -46,9 +44,11 @@ class Paginator
         return $this->currentPage;
     }
 
-    public function setItemsPerPage($itemsPerPage)
+    private function setItemsPerPage($itemsPerPage)
     {
-        $itemsPerPage = intval($itemsPerPage);
+        if (!preg_match('/^[1-9]+[0-9]*$/', $itemsPerPage)) {
+            throw new \InvalidArgumentException('Items per page should be a number.');
+        }
 
         if ($itemsPerPage < getenv('MIN_ITEMS_PER_PAGE')) {
             throw new \InvalidArgumentException(sprintf('Items per page should be a number greater than %s.', getenv('MIN_ITEMS_PER_PAGE')));
@@ -66,7 +66,7 @@ class Paginator
         return $this->itemsPerPage;
     }
 
-    public function fetchItemsCount()
+    private function fetchItemsCount()
     {
         $qb = clone $this->qb;
 
@@ -82,7 +82,7 @@ class Paginator
         return $this->itemsCount;
     }
 
-    public function calculateAvailablePages()
+    private function calculateAvailablePages()
     {
         $this->availablePages = ceil($this->itemsCount / $this->itemsPerPage);
     }
@@ -94,16 +94,15 @@ class Paginator
 
     public function paginate()
     {
-        $firstResultItemId = ($this->currentPage > 0) ? $this->currentPage * $this->itemsPerPage - $this->itemsPerPage : 0;
-
-        $this->qb->setFirstResult($firstResultItemId);
+        $this->qb->setFirstResult(($this->currentPage > 0) ? $this->currentPage * $this->itemsPerPage - $this->itemsPerPage : 0);
         $this->qb->setMaxResults($this->itemsPerPage);
 
         return [
             'itemsCount'        => $this->getItemsCount(),
-            'itemsPerPage'      => $this->getItemsPerPage(),
-            'availablePages'    => $this->getAvailablePages(),
-            'currentPage'       => $this->getCurrentPage()
+            'currentPage'       => $this->getCurrentPage(),
+            'lastPage'          => $this->getAvailablePages(),
+            'isPrevPage'        => (($this->currentPage - 1) > 0) ? true : false,
+            'isNextPage'        => (($this->currentPage + 1) <= $this->availablePages) ? true : false
         ];
     }
 }
