@@ -41,14 +41,14 @@ class CategoryServiceProvider implements ControllerProviderInterface
 
         $category
             ->get('/{categoryId}', 'CategoryController:getCategory')
+            ->assert('categoryId', '^[1-9]+[0-9]*$')
             ->bind('getCategory')
-            ->assert('categoryId', '\d+')
         ;
 
         $category
             ->get('/{categoryId}/products', 'CategoryController:getProductsByCategory')
+            ->assert('categoryId', '^[1-9]+[0-9]*$')
             ->bind('getProductsByCategory')
-            ->assert('categoryId', '\d+')
         ;
 
         $category
@@ -58,14 +58,14 @@ class CategoryServiceProvider implements ControllerProviderInterface
 
         $category
             ->patch('/{categoryId}', 'CategoryController:putCategory')
+            ->assert('categoryId', '^[1-9]+[0-9]*$')
             ->bind('putCategory')
-            ->assert('categoryId', '\d+')
         ;
 
         $category
             ->delete('/{categoryId}', 'CategoryController:deleteCategory')
+            ->assert('categoryId', '^[1-9]+[0-9]*$')
             ->bind('deleteCategory')
-            ->assert('categoryId', '\d+')
         ;
 
         return $category;

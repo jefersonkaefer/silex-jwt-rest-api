@@ -41,6 +41,7 @@ class ProductServiceProvider implements ControllerProviderInterface
 
         $product
             ->get('/{productId}', 'ProductController:getProduct')
+            ->assert('productId', '^[1-9]+[0-9]*$')
             ->bind('getProduct')
         ;
 
@@ -51,16 +52,15 @@ class ProductServiceProvider implements ControllerProviderInterface
 
         $product
             ->put('/{productId}', 'ProductController:putProduct')
-            ->assert('productId', '\d+')
+            ->assert('productId', '^[1-9]+[0-9]*$')
             ->bind('putProduct')
         ;
 
         $product
             ->delete('/{productId}', 'ProductController:deleteProduct')
-            ->assert('productId', '\d+')
+            ->assert('productId', '^[1-9]+[0-9]*$')
             ->bind('deleteProduct')
         ;
-
 
         return $product;
     }
