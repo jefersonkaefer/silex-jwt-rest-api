@@ -109,7 +109,9 @@ class Paginator
      */
     private function fetchItemsCount()
     {
-        $this->itemsCount = (clone $this->qb)->select('COUNT(*)')->execute()->fetchColumn();
+        $qb = clone $this->qb;
+
+        $this->itemsCount = $qb->select('COUNT(*)')->execute()->fetchColumn();
     }
 
     /**
