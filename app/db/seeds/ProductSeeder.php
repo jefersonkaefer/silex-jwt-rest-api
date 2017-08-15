@@ -21,8 +21,8 @@ class ProductSeeder extends AbstractSeed
             $data[] = [
                 'category_id'   => $faker->numberBetween(1, 16),
                 'user_id'       => 1,
-                'name'          => $faker->userName,
-                'description'   => $faker->realText(256),
+                'name'          => $faker->sentence($nbWords = 3, $variableNbWords = true),
+                'description'   => $faker->realText($maxNbChars = 256),
                 'price'         => $faker->randomFloat(2, 10, 999)
             ];
         }

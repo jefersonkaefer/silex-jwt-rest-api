@@ -20,7 +20,7 @@ class CategorySeeder extends AbstractSeed
         for ($i = 0; $i < 16; $i++) {
             $data[] = [
                 'user_id'   => 1,
-                'name'      => $faker->userName . '' . $faker->randomDigitNotNull()
+                'name'      => $faker->company
             ];
         }
 
