@@ -18,11 +18,11 @@ class CategoryServiceProvider implements ControllerProviderInterface
             $authorizationHeader = $request->headers->get('Authorization');
 
             if ($authorizationHeader) {
-                if (strpos($authorizationHeader, 'Bearer ') === false) {
+                if (preg_match('/(?<=Bearer\s)([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)/', $authorizationHeader, $matches)) {
+                    $token = $matches[0];
+                } else {
                     return new JsonResponse(['message' => 'Unauthorized'], 401);
                 }
-
-                $token = str_replace('Bearer ', '', $authorizationHeader);
 
                 try {
                     $app['user'] = JWT::decode($token, getenv('JWT_KEY'), [getenv('JWT_ALGORITHM')]);
