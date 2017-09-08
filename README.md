@@ -112,3 +112,72 @@ Code|Description
 -|-
 200|Return when product has been deleted correctly.
 400|Return when delete fail.
+
+
+
+
+
+
+---
+``GET /api/v1/categories`` - get categories.
+#### Parameters
+Name|Description
+-|-
+fields[]|List of fields which should be returned in response, comma seperated. Available fields: *id, user_id, name, created_at*.
+includeUser|Return products with user relationship.
+where, orWhere, andWhere|Filter products with where statement, for example: (where, orWhere, andWhere) = (fieldName), (eq, neq, lt, lte, gt, gte), (value).
+orderBy[]|Order by products by fields, for example: orderBy[] = (fieldName), (ASC, DESC).
+page|Set page of products.
+itemsPerPage|Set items per page in pagination.
+#### Responses
+Code|Description
+-|-
+200|Return list of categories.
+400|Return when request parameters are not complete.
+401|Return when request is invalid or user is unauthorized.
+---
+``GET /api/v1/categories/{id}`` - get category by ID.
+#### Parameters
+Name|Description
+-|-
+fields[]|List of fields which should be returned in response, comma seperated. Available fields: *id, user_id, name, created_at*.
+includeUser|Return products with user relationship.
+where, orWhere, andWhere|Filter products with where statement, for example: (where, orWhere, andWhere) = (fieldName), (eq, neq, lt, lte, gt, gte), (value).
+orderBy[]|Order by products by fields, for example: orderBy[] = (fieldName), (ASC, DESC).
+page|Set page of products.
+itemsPerPage|Set items per page in pagination.
+#### Responses
+Code|Description
+-|-
+200|Return category by ID.
+400|Return when request parameters are not complete.
+401|Return when request is invalid or user is unauthorized.
+---
+``POST /api/v1/categories`` - create new category.
+#### Parameters
+Name|Description
+-|-
+name|Category name.
+#### Responses
+Code|Description
+-|-
+200|Return when category has been created correctly.
+400|Return when request parameters are invalid or when insert fail.
+---
+``PUT /api/v1/categories/{id}`` - update category by ID.
+#### Parameters
+Name|Description
+-|-
+name|Category name.
+#### Responses
+Code|Description
+-|-
+200|Return when category has been updated correctly.
+400|Return when request parameters are invalid or when update fail.
+---
+``DELETE /api/v1/categories/{id}`` - delete category by ID.
+#### Responses
+Code|Description
+-|-
+200|Return when category has been deleted correctly.
+400|Return when delete fail.
