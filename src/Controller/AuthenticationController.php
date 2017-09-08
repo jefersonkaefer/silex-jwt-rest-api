@@ -3,10 +3,10 @@
 namespace Controller;
 
 use Firebase\JWT\JWT;
+use Validator\UniqueUsername;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
-use Validator\UniqueUsername;
 
 class AuthenticationController extends BaseController
 {
@@ -105,7 +105,7 @@ class AuthenticationController extends BaseController
 
             return new JsonResponse([
                 'errors' => $errorMessages
-            ]);
+            ], 400);
         } else {
             $this->app['db']->insert('users', [
                 'username' => $username,

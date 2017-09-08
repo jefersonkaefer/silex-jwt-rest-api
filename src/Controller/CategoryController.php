@@ -7,7 +7,6 @@ use Validator\UniqueCategoryName;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class CategoryController extends BaseController
 {

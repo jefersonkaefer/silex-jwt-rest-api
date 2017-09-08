@@ -15,3 +15,29 @@ vendor/bin/phinx seed:run -s UserSeeder
 vendor/bin/phinx seed:run -s CategorySeeder
 vendor/bin/phinx seed:run -s ProductSeeder
 ```
+
+## Endpoints
+``POST /api/v1/signup`` --- signup description.
+#### Parameters
+Name|Description
+-|-
+username|User name.
+password|User password.
+#### Responses
+Code|Description
+-|-
+201|Return when user account has been created correctly.
+400|Return when parameters is not valid with information about validation error.
+---
+``POST /api/v1/signin`` --- signin description.
+#### Parameters
+Name|Description
+-|-
+username|User name.
+password|User password.
+#### Responses
+Code|Description
+-|-
+200|Return JWT token when user credentials is valid.
+400|Return when request parameters is not complete.
+401|Return when credentials are invalid.
