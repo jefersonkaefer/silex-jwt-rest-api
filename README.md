@@ -17,7 +17,7 @@ vendor/bin/phinx seed:run -s ProductSeeder
 ```
 
 ## Endpoints
-``POST /api/v1/signup`` -- signup description.
+``POST /api/v1/signup`` - signup description.
 #### Parameters
 Name|Description
 -|-
@@ -29,7 +29,7 @@ Code|Description
 201|Return when user account has been created correctly.
 400|Return when parameters is not valid with information about validation error.
 ---
-``POST /api/v1/signin`` -- signin description.
+``POST /api/v1/signin`` - signin description.
 #### Parameters
 Name|Description
 -|-
@@ -42,15 +42,15 @@ Code|Description
 400|Return when request parameters are not complete.
 401|Return when credentials are invalid.
 ---
-``GET /api/v1/products`` -- get products description.
+``GET /api/v1/products`` - get products description.
 #### Parameters
 Name|Description
 -|-
 fields[]|List of fields which should be returned in response, comma seperated. Available fields: *id, category_id, user_id, name, description, price, created_at*.
 includeUser|Return products with user relationship.
 includeCategory|Return products with category relationship.
-where, orWhere, andWhere|Filter products with where statement, for example: (where|orWhere|andWhere)=(fieldName),(eq|neq|lt|lte|gt|gte),(value).
-orderBy[]|Order by products by fields, for example: orderBy[]=(fieldName),(ASC|DESC).
+where, orWhere, andWhere|Filter products with where statement, for example: (where, orWhere, andWhere) = (fieldName), (eq, neq, lt, lte, gt, gte), (value).
+orderBy[]|Order by products by fields, for example: orderBy[] = (fieldName), (ASC, DESC).
 page|Set page of products.
 itemsPerPage|Set items per page in pagination.
 #### Responses
